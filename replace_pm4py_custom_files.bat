@@ -16,6 +16,12 @@ set destination1=%SITE_PACKAGES%\pm4py\objects\bpmn\importer\variants\lxml.py
 set source2=%SCRIPT_DIR%custom_pm4py\obj.py
 set destination2=%SITE_PACKAGES%\pm4py\objects\bpmn\obj.py
 
+REM Echo the source and destination paths
+echo Source 1: %source1%
+echo Destination 1: %destination1%
+echo Source 2: %source2%
+echo Destination 2: %destination2%
+
 REM Copy the files to their respective locations
 copy /Y "%source1%" "%destination1%"
 copy /Y "%source2%" "%destination2%"
