@@ -51,13 +51,13 @@ To run SLURMminer_Engine, follow these steps:
     - Replace the following files in the `pm4py` package with the custom versions provided:
         - **File to Update:**  
           `\pm4py\objects\bpmn\importer\variants\lxml.py`  
-          **Replace With:**  
-          `/custom_pm4py/lxml.py`
+          **Replace With:**
+          [`/custom_pm4py/lxml.py`](./custom_pm4py/lxml.py)
 
         - **File to Update:**  
           `\pm4py\objects\bpmn\obj.py`  
-          **Replace With:**  
-          `/custom_pm4py/obj.py`
+          **Replace With:**
+          [`/custom_pm4py/obj.py`](./custom_pm4py/obj.py)
 
    Make sure to update these files to ensure compatibility and proper functionality.
 
@@ -76,8 +76,24 @@ To run SLURMminer_Engine, follow these steps:
       * Restarting with stat
       ```
 
-    - Open your web browser and navigate to [http://127.0.0.1:5000](http://127.0.0.1:5000). Here, you can upload your input SlurmBPMN file, and the tool will generate the corresponding SLURM scripts.
+    - Open your web browser and navigate to [http://127.0.0.1:5000](http://127.0.0.1:5000). Here, you can upload your input SlurmBPMN file, and the tool will generate the corresponding SLURM scripts in a newly created folder named `slurm_scripts`.
 
----
 
-This version organizes the information in a clear, structured manner, making it easier to follow the installation and execution procedures. The use of bullet points, code blocks, and links enhances readability and usability, ensuring that users can quickly get started with SLURMminer_Engine.
+## Example
+
+This section demonstrates how SLURMminer_Engine can be used to convert BPMN diagrams into SLURM scripts. To create and see input BPMN diagram, you can use the [bpmn.io](https://demo.bpmn.io/new) online tool. This tool allows you to easily draw BPMN diagrams that can be used as input for SLURMminer_Engine.
+
+### Example BPMN Diagram
+
+Below is a sample BPMN diagram that represents a simple workflow:
+
+![Sample SlurmBPMN Diagram](slurm_bpmn_example.bpmn)
+
+### Generated SLURM Script
+
+After uploading the BPMN diagram to SLURMminer_Engine, the tool generates a SLURM script that automates the workflow on a cluster environment:
+
+![Generated SLURM Script](path/to/your/image2.png)
+
+In this example, the BPMN diagram is converted into a SLURM script, ready to be executed on a SLURM-managed HPC cluster.
+
