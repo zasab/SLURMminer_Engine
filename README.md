@@ -81,19 +81,97 @@ To run SLURMminer_Engine, follow these steps:
 
 ## Example
 
-This section demonstrates how SLURMminer_Engine can be used to convert BPMN diagrams into SLURM scripts. To create and see input BPMN diagram, you can use the [bpmn.io](https://demo.bpmn.io/new) online tool. This tool allows you to easily draw BPMN diagrams that can be used as input for SLURMminer_Engine.
+This section demonstrates how SLURMminer_Engine can be used to convert SlurmBPMN diagrams into SLURM scripts. A SlurmBPMN diagram is a type of customized BPMN that includes all the necessary information for executing a workflow on SLURM. To create and visualize an input SlurmBPMN diagram, you can use the [bpmn.io](https://demo.bpmn.io/new) online tool. This tool allows you to easily draw BPMN diagrams, which can then be customized to serve as input for SLURMminer_Engine.
 
-### Example BPMN Diagram
+### Example SlurmBPMN Diagram
 
-Below is a sample BPMN diagram that represents a simple workflow:
+Below is a sample SlurmBPMN diagram that represents a simple workflow (the BPMN file is available here: ![Sample SlurmBPMN Diagram](./Example/slurm_bpmn_example.bpmn)):
 
-![Sample SlurmBPMN Diagram](slurm_bpmn_example.bpmn)
+![Sample SlurmBPMN Diagram](./Example/slurm_bpmn_example.png)
+
+The SlurmBPMN model outlines the steps for analyzing sorting algorithms. It starts with selecting a sorting algorithm, followed by generating data and implementing the algorithm. The implementation is refined through repeated tasks. An XOR gateway then uses scripts (`Cond1.py` and `Cond2.py`) to determine the next step based on data size. Large datasets trigger the "Run First Experiment," while smaller ones lead to the "Run Second Experiment." Data is collected, and the results are analyzed to provide insights into the algorithm's efficiency. Each task is linked to a script executed with the `srun` command on SLURM.
+    
+| Label   | Name                                               |
+|---------|----------------------------------------------------|
+| $A.py$  | Selection of Sorting Algorithm                     |
+| $B.py$  | Generate Data                                      |
+| $C.py$  | Implement Algorithm                                |
+| $d_1$   | Data dependency between $A.py$ and $C.py$          |
+| $d_2$   | Data dependency between $B.py$, $D.py$, and $E.py$ |
+| Cond1.py | Script for assessing data size condition 1        |
+| Cond2.py | Script for assessing data size condition 2        |
+| $D.py$  | Run First Experiment                               |
+| $E.py$  | Run Second Experiment                              |
+| $d_3$   | Data dependency between $D.py$ and $F.py$          |
+| $d_4$   | Data dependency between $E.py$ and $F.py$          |
+| $F.py$  | Collect Data                                       |
+| $d_5$   | Data dependency between $F.py$ and $G.py$          |
+| $G.py$  | Analysis of Results                                |
+
+This example highlights three important decision structures:
+
+1. **Condition-Based Execution:** Scripts like `Cond1.py` run on SLURM to check certain conditions. If the script returns a 0, the workflow continues.
+2. **Explicit Loops:** Tasks like `C.py` can repeat a specified number of times, such as 1 or 2, ensuring that `C.py` is executed in sequence for the chosen number of repetitions.
+3. **Implicit Loops:** Tasks like `D.py` can run with different inputs (e.g., thresholds 0.2 and 0.8) simultaneously, ensuring that all variations are processed in parallel.
 
 ### Generated SLURM Script
+After uploading the SlurmBPMN file, click the 'Create Executable File' button to generate the output SLURM scripts. The tool generates a SLURM script that automates the workflow on a cluster environment. The final SLURM script can be found here:
 
-After uploading the BPMN diagram to SLURMminer_Engine, the tool generates a SLURM script that automates the workflow on a cluster environment:
+![Generated SLURM Script](./generated_SLURM_script/slurm_bpmn_example.sh)
 
-![Generated SLURM Script](path/to/your/image2.png)
+```bash
+#!/bin/bash
 
-In this example, the BPMN diagram is converted into a SLURM script, ready to be executed on a SLURM-managed HPC cluster.
+FILES_DIR=$(echo $RANDOM | md5sum | head -c 4)
+FILES_DIR="OM2X5_$FILES_DIR"
+
+job_id_723=$(sbatch --parsable 723_A.sh $FILES_DIR 74236)
+job_id_1373=$(sbatch --parsable --dependency=afterok:$job_id_723 1373_C.sh $FILES_DIR 74236)
+job_id_3031=$(sbatch --parsable --dependency=afterok:$job_id_723 3031_B.sh $FILES_DIR 74236)
+job_id_3283=$(sbatch --parsable --dependency=afterany:$job_id_3031:$job_id_1373 3283_cond1.sh $FILES_DIR 74236)
+job_id_2415=$(sbatch --parsable --dependency=afterany:$job_id_3031:$job_id_1373 2415_cond2.sh $FILES_DIR 74236)
+job_id_3072=$(sbatch --parsable --dependency=afterok:$job_id_2415 3072_E.sh $FILES_DIR 74236)
+job_id_4965=$(sbatch --parsable --dependency=afterok:$job_id_3283 4965_D.sh $FILES_DIR 74236)
+job_id_855=$(sbatch --parsable --dependency=afterok:$job_id_3283 855_D.sh $FILES_DIR 74236)
+job_id_5493=$(sbatch --parsable --dependency=afterany:$job_id_855:$job_id_3072 5493_ojs__aff_iloop__F.sh $FILES_DIR 74236)
+job_id_8132=$(sbatch --parsable --dependency=afterany:$job_id_3072:$job_id_4965 8132_FEV__aff_iloop__F.sh $FILES_DIR 74236)
+job_id_8359=$(sbatch --parsable --dependency=afterok:$job_id_5493,$job_id_8132 8359_G.sh $FILES_DIR 74236)
+```
+
+When you generate the final SLURM script, the first step is to create a unique directory name using a random string. This ensures that each time you submit the script to SLURM for execution, the generated files for the tasks are stored in a unique folder, which is crucial for managing files in workflow management systems.
+
+The tool then generates a unique random number as a reference for the job script name and assigns it a `jobid` for handling dependencies. For example, `723` is connected to `A` as the job script name, which contains all the necessary information, including the execution of `A.py` and its parameters.
+
+Here’s a snippet of the `723_A.sh`:
+
+```bash
+#!/bin/bash
+
+# Assuming the first argument is FILES_DIR
+FILES_DIR=$1$2
+mkdir $FILES_DIR
+
+#SBATCH --mem-per-cpu=6G
+#SBATCH --cpus-per-task=16
+#SBATCH --nodes=2
+#SBATCH --ntasks=2
+#SBATCH --ntasks-per-node=1
+#SBATCH --output=723_A_res_%j.txt
+
+# Execute the Python script using srun
+srun python3 A.py $FILES_DIR 0 $FILES_DIR/d1 1
+
+if [ $? -eq 0 ]; then
+    echo "0" >> "exit_code0_${SLURM_JOB_ID}.txt"
+    exit 0
+else
+    echo "1" >> "exit_code1_${SLURM_JOB_ID}.txt"
+    exit 1
+fi
+```
+
+The script starts by scheduling jobs with no dependencies (`job_id_723`). It then schedules jobs that depend on `job_id_723` (`job_id_1373` and `job_id_3031`). Subsequent jobs are scheduled in order, ensuring all dependencies are met before they are run. The final job (`job_id_8359`) is scheduled last, dependent on the completion of earlier tasks.
+
+In this example, the SlurmBPMN diagram is converted into a SLURM script, ready to be executed on a SLURM-managed HPC cluster.
+
 
