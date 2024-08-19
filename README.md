@@ -117,7 +117,7 @@ This example highlights three important decision structures:
 ### Generated SLURM Script
 After uploading the SlurmBPMN file, click the 'Create Executable File' button to generate the output SLURM scripts. The tool generates a SLURM script that automates the workflow on a cluster environment. The final SLURM script can be found here:
 
-![Generated SLURM Script](./generated_SLURM_script/slurm_bpmn_example.sh)
+![Generated SLURM Script](./Example/generated_SLURM_script/slurm_bpmn_example.sh)
 
 ```bash
 #!/bin/bash
@@ -147,7 +147,6 @@ Here’s a snippet of the `723_A.sh`:
 ```bash
 #!/bin/bash
 
-# Assuming the first argument is FILES_DIR
 FILES_DIR=$1$2
 mkdir $FILES_DIR
 
@@ -170,7 +169,11 @@ else
 fi
 ```
 
-The script starts by scheduling jobs with no dependencies (`job_id_723`). It then schedules jobs that depend on `job_id_723` (`job_id_1373` and `job_id_3031`). Subsequent jobs are scheduled in order, ensuring all dependencies are met before they are run. The final job (`job_id_8359`) is scheduled last, dependent on the completion of earlier tasks.
+1. **SLURM Settings:** The script begins by setting up SLURM resource allocations, specifying memory per CPU, the number of CPU cores per task, the number of nodes, task distribution, and the output file for the job's results.
+2. **Running the Python Script:** It then uses `srun` to execute `A.py`, passing in the directory for input and output files, along with the number of input (here 0) and output files (1) in a specified format.
+3. **Logging and Exit:** Finally, the script checks if the Python script ran successfully. It logs the outcome (success or failure) to a file and exits with the corresponding status code.
+
+The script `slurm_bpmn_example.sh` starts by scheduling jobs with no dependencies (`job_id_723`). It then schedules jobs that depend on `job_id_723` (`job_id_1373` and `job_id_3031`). Subsequent jobs are scheduled in order, ensuring all dependencies are met before they are run. The final job (`job_id_8359`) is scheduled last, dependent on the completion of earlier tasks.
 
 In this example, the SlurmBPMN diagram is converted into a SLURM script, ready to be executed on a SLURM-managed HPC cluster.
 
