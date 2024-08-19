@@ -41,15 +41,15 @@ def generate_slurm_script_from_files():
             print()
             print()
             print("-----"*20)
-            storageprocessor.remove_dir(config.bpmn.uploaded_files_directory)
+            storageprocessor.remove_dir(config.bpmn.slurm_scripts_directory)
             JOB.remove_all_jobs()
             should_be_uploaded_list = {}
             files = request.files
             if 'bpmn_file' in files and 'script_folder_zip' in files:
                 bpmn_file = files["bpmn_file"]
                 script_folder_zip = files["script_folder_zip"]
-                bpmn_file_path = storageprocessor.save_file(bpmn_file, config.bpmn.uploaded_files_directory)
-                storageprocessor.save_file(script_folder_zip, config.bpmn.uploaded_files_directory)
+                bpmn_file_path = storageprocessor.save_file(bpmn_file, config.bpmn.slurm_scripts_directory)
+                storageprocessor.save_file(script_folder_zip, config.bpmn.slurm_scripts_directory)
                 preprocessed_processed_bpmn = SLURMprocessor.preprocessing_bpmn(bpmn_file_path)
                 processed_bpmn = SLURMprocessor.postprocessing_bpmn(preprocessed_processed_bpmn)
 
@@ -60,7 +60,7 @@ def generate_slurm_script_from_files():
                 depend_script, should_be_uploaded_list = graphObject.create(net, im, fm, processed_bpmn)
                 SRunFactory_new.create(should_be_uploaded_list)
                 sbatch_file_name = bpmn_file.filename.split('.')[0] + ".sh"
-                sbatch_file_path = "{}/{}".format(config.bpmn.uploaded_files_directory, sbatch_file_name)
+                sbatch_file_path = "{}/{}".format(config.bpmn.slurm_scripts_directory, sbatch_file_name)
                 should_be_uploaded_list.add(sbatch_file_path)
                 sbatch_file = open(sbatch_file_path, 'w')
                 main_CI = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(5))
@@ -68,7 +68,7 @@ def generate_slurm_script_from_files():
                 SBatchFactory.create(sbatch_file, main_CI)
                 CommandsFactory.create('run_commands.sh', sbatch_file_name, script_folder_zip.filename, should_be_uploaded_list)
 
-                shutil.copy(config.hpc.squeue_logger_path, config.bpmn.uploaded_files_directory)
+                shutil.copy(config.hpc.squeue_logger_path, config.bpmn.slurm_scripts_directory)
 
                 return response_json({
                     "msg":  messages["success"],

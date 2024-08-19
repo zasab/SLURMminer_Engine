@@ -40,7 +40,7 @@ nohup ./squeue_logger.sh &
     run_command_file.write(text1)
 
 def create(run_command_filename, sbatch_file_name, zipped_script_folder_fullname, should_be_uploaded_list):
-    run_command_file_path = "{}/{}".format(config.bpmn.uploaded_files_directory, run_command_filename)
+    run_command_file_path = "{}/{}".format(config.bpmn.slurm_scripts_directory, run_command_filename)
     should_be_uploaded_list.add(run_command_file_path)
     run_command_file = open(run_command_file_path, 'w')
     zipped_script_folder_name = zipped_script_folder_fullname.split('.')

@@ -50,7 +50,7 @@ remoteserver.REMOTE_FOLDER_NAME = Config.get('SERVER', 'REMOTE_FOLDER_NAME').str
 remoteserver.REMOTE_PATH_HOME_FILE = os.path.join(filedir, Config.get('SERVER', 'REMOTE_PATH_HOME_FILE').strip())
 
 bpmn = Property()
-bpmn.uploaded_files_directory = filedir + "/" + Config.get('BPMN', 'uploaded_files_directory').strip()
+bpmn.slurm_scripts_directory = filedir + "/" + Config.get('BPMN', 'slurm_scripts_directory').strip()
 bpmn.ALLOWED_BPMN_EXTENTIONS = Config.get('BPMN', 'ALLOWED_BPMN_EXTENTIONS').strip()
 
 hpc = Property()
