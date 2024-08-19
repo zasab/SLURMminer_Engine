@@ -10,7 +10,8 @@ elif __file__:
     basedir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 from flask import Blueprint
 import config
-from flask_api import status
+# from flask_api import status
+from http import HTTPStatus
 from server.response import *
 from server.request import *
 from server.error_messages import messages
@@ -73,13 +74,13 @@ def generate_slurm_script_from_files():
                     "msg":  messages["success"],
                     "slurmDAG": ""
                     },
-                status.HTTP_200_OK)
+                HTTPStatus.OK)
             else:
                 return response_json({"error":  messages["required_files_not_found"]},
-                status.HTTP_404_NOT_FOUND)
+                HTTPStatus.NOT_FOUND)
         else:
              return response_json({"error":  messages["required_files_not_found"]},
-                status.HTTP_404_NOT_FOUND)
+                HTTPStatus.NOT_FOUND)
     except Exception as e:
         print(e)
-        return response_json({"error":  messages["server_side_error"]}, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return response_json({"error":  messages["server_side_error"]}, HTTPStatus.INTERNAL_SERVER_ERROR)
