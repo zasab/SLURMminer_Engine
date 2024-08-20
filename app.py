@@ -12,6 +12,7 @@ elif __file__:
     basedir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 import config
 from flask import Flask
+from flask_cors import CORS
 from APIs.navigations import navigation as navigation_blueprint
 from APIs.slurm_script_api import slurm_script_manager as slurm_script_blueprint
 import warnings
@@ -20,6 +21,11 @@ import os
 
 def create_app():
     app = Flask(__name__)
+
+    CORS(app, supports_credentials=True)
+    app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+    app.config['SESSION_COOKIE_SECURE'] = True
+
     app.register_blueprint(navigation_blueprint)
     app.register_blueprint(slurm_script_blueprint)
     return app

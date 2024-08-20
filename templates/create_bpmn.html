@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Create BPMN Diagram{% endblock %}
+{% block content %}
+<div class="mt-2">
+    <h4>BPMN Editor: <a href="https://demo.bpmn.io/new" class="btn btn-secondary" target="_blank">Open BPMN Editor in a New Tab</a></h4>
+    <div id="bpmn-editor-container" style="width: 100%; height: 600px; border: 1px solid hsl(0, 0%, 80%);">
+        <iframe src="https://demo.bpmn.io/new" width="100%" height="100%"></iframe>
+    </div>
+
+    <h5 class="mt-5">SlurmBPMN Rules</h5>
+    <div id="bpmn-container" style="width: 100%; border: 2px solid hsl(0, 82%, 18%); padding: 20px; margin-bottom: 20px; background-color: hsl(0, 0%, 98%); border-radius: 8px;">
+        <p><strong>Allowed Elements:</strong></p>
+        <ul style="margin-left: 20px;">
+            <li><strong>Start Event</strong>: The beginning of your workflow.</li>
+            <li><strong>End Event</strong>: Marks the end of the workflow.</li>
+            <li><strong>Tasks</strong>: Individual units of work.</li>
+            <li><strong>AND Gateways</strong>: Represents parallel paths in the workflow.</li>
+            <li><strong>XOR Gateways</strong>: Represents decision points where only one path can be taken.</li>
+            <li><strong>Sequence Flows</strong>: Connects elements like events, tasks, and gateways.</li>
+            <li><strong>Data Objects</strong>: Represents data that is required or produced by tasks.</li>
+            <li><strong>Data Associations</strong>: Connects tasks to data objects. Note: Each data object can only have one input task.</li>
+            <li><strong>Text Annotations</strong>: Additional notes or comments associated with tasks or gateways.</li>
+        </ul>
+
+        <p><strong>Special Rules:</strong></p>
+        <ul style="margin-left: 20px;">
+            <li><strong>XOR Split Gateway Annotations</strong>: 
+                <ul>
+                    <li>If annotated like <code>rep:[n:m]</code>, the task between the merge and split gateways must be repeated sequentially between <strong>n</strong> and <strong>m</strong> times.</li>
+                    <li>Example: <strong>C.py</strong> must be executed once or twice sequentially.</li>
+                </ul>
+            </li>
+            <li><strong>Condition Checks with SLURM Scripts:</strong>
+                <ul>
+                    <li>Some sequence flows are used for condition checks. In such cases, an SLURM script is executed on HPC clusters to check the condition.</li>
+                    <li>If the script returns a code 0, the workflow continues along that path.</li>
+                    <li>Example: <strong>SLURM:cond1.py</strong> and <strong>SLURM:cond2.py</strong> are used before <strong>E.py</strong> and <strong>D.py</strong>.</li>
+                </ul>
+            </li>
+            <li><strong>Parameter-Based Execution:</strong>
+                <ul>
+                    <li>Tasks can be run with different parameter values using XOR gateways.</li>
+                    <li>Example: <strong>D.py</strong> is executed on a cluster with parameter <strong>t</strong> taking values <code>0.2</code> and <code>0.8</code>. Depending on the value of <strong>t</strong>, different outputs are generated, requiring a re-run of <strong>F.py</strong>.</li>
+                    <li>Note: If the list of parameter values like <code>t:['0.2','0.8']</code> doesn't work, remove the single quotes around the values and try again.</li>
+                </ul>
+            </li>
+        </ul>
+        <div class="text-center mt-4">
+            <img src="https://raw.githubusercontent.com/zasab/SLURMminer_Engine/main/Example/slurm_bpmn_example.png"  
+                 style="max-width: 100%; height: auto; border: 1px solid #ccc; padding: 10px; background-color: white;">
+            <p class="mt-2"><em>Figure: An illustrative example of a SlurmBPMN diagram.</em></p>
+        </div>       
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+    document.getElementById('bpmn-rules-form').addEventListener('submit', function(event) {
+        event.preventDefault();
+    });
+</script>
+{% endblock %}

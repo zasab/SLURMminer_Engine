@@ -44,7 +44,7 @@ To run SLURMminer_Engine, follow these steps:
 1. **Install Required Packages:**
     - Run the `app.py` script. Then, install the necessary packages listed in the `requirements.txt` file using:
       ```bash
-      pip install flask matplotlib networkx pm4py==2.3.3
+      pip install flask flask_cors matplotlib networkx pm4py==2.3.3
       ```
 
 2. **Update `pm4py` Package Files:**
