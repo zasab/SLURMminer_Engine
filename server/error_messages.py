@@ -6,5 +6,5 @@ messages = {
     "bad_request": "bad request",
     "ssh_error": "SSH Authentication failed. Username or Password is wrong.",
     "start_logging": "The SLURM log does not exist. Try start logging.",
-    "required_files_not_found": "bpmn or zip file not found",
+    "required_files_not_found": "bpmn file not found",
 }

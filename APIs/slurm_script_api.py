@@ -45,11 +45,11 @@ def generate_slurm_script_from_files():
             JOB.remove_all_jobs()
             should_be_uploaded_list = {}
             files = request.files
-            if 'bpmn_file' in files and 'script_folder_zip' in files:
+            if 'bpmn_file' in files:
                 bpmn_file = files["bpmn_file"]
-                script_folder_zip = files["script_folder_zip"]
+                # script_folder_zip = files["script_folder_zip"]
                 bpmn_file_path = storageprocessor.save_file(bpmn_file, config.bpmn.slurm_scripts_directory)
-                storageprocessor.save_file(script_folder_zip, config.bpmn.slurm_scripts_directory)
+                # storageprocessor.save_file(script_folder_zip, config.bpmn.slurm_scripts_directory)
                 preprocessed_processed_bpmn = SLURMprocessor.preprocessing_bpmn(bpmn_file_path)
                 processed_bpmn = SLURMprocessor.postprocessing_bpmn(preprocessed_processed_bpmn)
 
@@ -66,7 +66,8 @@ def generate_slurm_script_from_files():
                 main_CI = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(5))
 
                 SBatchFactory.create(sbatch_file, main_CI)
-                CommandsFactory.create('run_commands.sh', sbatch_file_name, script_folder_zip.filename, should_be_uploaded_list)
+                # CommandsFactory.create('run_commands.sh', sbatch_file_name, script_folder_zip.filename, should_be_uploaded_list)
+                CommandsFactory.create('run_commands.sh', sbatch_file_name, should_be_uploaded_list)
 
                 shutil.copy(config.hpc.squeue_logger_path, config.bpmn.slurm_scripts_directory)
 
