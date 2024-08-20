@@ -59,8 +59,9 @@ def create(sbatch_file, main_CI):
         for connected_job in connected_jobs_list:
             if job.get_job_id() in connected_job:
                 all_connected_jobs = '_'.join(connected_job)
-                CI = common_functions.hash_to_5_digit_string(all_connected_jobs)
-        text2 += """{}=$(sbatch --parsable {} $FILES_DIR {})\n""".format(job.get_job_id(), job.get_dependency_script(), CI)
+                # CI = common_functions.hash_to_5_digit_string(all_connected_jobs)
+                CI = ''
+        text2 += """{}=$(sbatch --parsable {} $FILES_DIR{})\n""".format(job.get_job_id(), job.get_dependency_script(), CI)
 
 
     sbatch_file.write(text1 + text2)
