@@ -8,7 +8,7 @@ if getattr(sys, 'frozen', False):
     basedir = os.path.dirname(os.path.dirname(sys.executable))
 elif __file__:
     basedir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-from flask import Blueprint, request
+from flask import Blueprint, request, send_file
 from http import HTTPStatus
 from server.response import response_json
 from server.error_messages import messages
@@ -41,7 +41,7 @@ def generate_slurm_script_from_files():
                 processed_bpmn = SLURMprocessor.postprocessing_bpmn(preprocessed_bpmn)
 
                 net, im, fm = pm4py.convert_to_petri_net(processed_bpmn)
-                pm4py.view_petri_net(net, im, fm)
+                # pm4py.view_petri_net(net, im, fm)
 
                 depend_script, should_be_uploaded_list = graphObject.create(net, im, fm, processed_bpmn)
                 SRunFactory_new.create(should_be_uploaded_list)
@@ -54,12 +54,33 @@ def generate_slurm_script_from_files():
                     main_CI = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(5))
                     SBatchFactory.create(sbatch_file, main_CI)
 
-                return response_json({"msg": messages["success"], "slurmDAG": ""}, HTTPStatus.OK)
+                with open(sbatch_file_path, 'r') as file:
+                    sbatch_file_content = file.read()
+
+                return response_json({
+                    "msg": messages["success"], 
+                    "sbatch_file_content": sbatch_file_content
+                    }, HTTPStatus.OK)
 
             return response_json({"error": messages["required_files_not_found"]}, HTTPStatus.NOT_FOUND)
 
         return response_json({"error": messages["required_files_not_found"]}, HTTPStatus.NOT_FOUND)
 
+    except Exception as e:
+        print(e)
+        return response_json({"error": messages["server_side_error"]}, HTTPStatus.INTERNAL_SERVER_ERROR)
+
+
+from flask import send_from_directory
+
+@slurm_script_manager.route("/download_sbatch_file", methods=["GET"])
+def download_sbatch_file():
+    try:
+        slurm_dir = config.bpmn.slurm_scripts_directory
+        zip_filename = "slurm_scripts.zip"
+        zip_filepath = os.path.join(slurm_dir, zip_filename)
+        shutil.make_archive(zip_filepath.replace('.zip', ''), 'zip', slurm_dir)
+        return send_file(zip_filepath, as_attachment=True)
     except Exception as e:
         print(e)
         return response_json({"error": messages["server_side_error"]}, HTTPStatus.INTERNAL_SERVER_ERROR)
