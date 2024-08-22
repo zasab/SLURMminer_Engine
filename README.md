@@ -78,21 +78,44 @@ To run SLURMminer_Engine, follow these steps:
 
     - Open your web browser and navigate to [http://127.0.0.1:5000](http://127.0.0.1:5000). Here, you can upload your input SlurmBPMN file, and the tool will generate the corresponding SLURM scripts in a newly created folder named `slurm_scripts`.
 
-## What you will see in user interface
+## What to Expect in the User Interface
 
-Open your web browser and navigate to [http://127.0.0.1:5000](http://127.0.0.1:5000).
+To get started, open your web browser and navigate to [http://127.0.0.1:5000](http://127.0.0.1:5000).
 
-First you will see the home page. You can navigate in create BPMN tab to generate your SlurmBPMN diagram and there you will see the rules for defining the diagram. 
+#### Home Page Overview
+
+Upon landing on the home page, you'll have easy access to the main features of the SLURMminer Engine. You can begin by navigating to the "Create BPMN" tab, where you can design your SlurmBPMN diagram. This tab also includes the rules for defining the diagram to ensure it's correctly structured.
 
 ![Create BPMN Tab](./Example/create_bpmn_tab.png)
 
-The SlurmBPMN model allows for a structured representation of workflows with specific rules governing its elements and their interactions. The allowed elements include the Start Event, marking the beginning of the workflow, and the End Event, signifying its conclusion. Tasks represent individual units of work, while AND Gateways facilitate parallel paths, and XOR Gateways define decision points where only one path can be chosen. Sequence Flows connect these elements, ensuring the logical progression of the workflow, and Data Objects represent the data required or produced by tasks, with Data Associations linking tasks to these objects—each Data Object can have only one input task. Additionally, Text Annotations provide space for notes or comments related to tasks or gateways.
+#### Understanding SlurmBPMN
 
-Special rules apply to specific elements. XOR Split Gateways can be annotated to specify task repetitions using the format `rep:[n:m]`, where the task between the split and merge gateways is repeated sequentially between n and m times. For condition checks, certain sequence flows trigger SLURM scripts on HPC clusters, where the script's return code determines the continuation of the workflow. If the script returns a code 0, the workflow proceeds along that path. Furthermore, tasks can be executed with varying parameter values through XOR Gateways, allowing different outputs depending on the parameters used. This may require re-running subsequent tasks, such as `F.py`, depending on the results. If issues arise with parameter values, particularly with formatting, it's suggested to remove any single quotes around the values and try again.
+The SlurmBPMN model provides a structured way to represent workflows, with specific rules governing how its elements interact. Here’s a quick overview:
 
-After generating the input diagram, you can upload that in home page as following:
+- **Start Event**: Marks the beginning of your workflow.
+- **End Event**: Indicates the end of the workflow.
+- **Tasks**: Represent individual units of work.
+- **AND Gateways**: Allow for parallel paths within the workflow.
+- **XOR Gateways**: Define decision points where only one path can be taken.
+- **Sequence Flows**: Connect the various elements, ensuring logical flow.
+- **Data Objects**: Represent data needed or produced by tasks.
+- **Data Associations**: Link tasks to data objects (Note: Each data object can have only one input task).
+- **Text Annotations**: Provide space for additional notes or comments related to tasks or gateways.
 
-![BPMN to SLURM conversion](./Example/home_tab_3.png)
+##### Special Rules to Note
+Customized SlurmBPMN uses XOR gateways (For more detailed information about BPMN structures, see [BPMN 2.0 Specification](https://www.omg.org/spec/BPMN/2.0)) for three main purposes:
+
+- **Condition-Based Execution:** Scripts like `Cond1.py` run on SLURM to check specific conditions. If the script returns a 0, the workflow continues along that path.
+- **Explicit Loops:** Tasks like `C.py` can be repeated a set number of times, either 1 or 2, ensuring `C.py` is executed in sequence for the selected number of repetitions.
+- **Implicit Loops:** Tasks like `D.py` can run simultaneously with different inputs (e.g., thresholds 0.2 and 0.8), allowing all variations to be processed in parallel.
+
+If you encounter issues with parameter formatting, such as using single quotes around values, simply remove the quotes and try again.
+
+#### Uploading Your Diagram
+
+After you've created your SlurmBPMN diagram, return to the home page to upload it. The interface for uploading and converting your BPMN diagram to SLURM scripts is straightforward:
+
+![BPMN to SLURM Conversion](./Example/home_tab_3.png)
 
 ## Use Case Example
 
@@ -122,12 +145,6 @@ The SlurmBPMN model outlines the steps for analyzing sorting algorithms. It begi
 | $F.py$  | Collect Data                                       |
 | $d_5$   | Data dependency between $F.py$ and $G.py$          |
 | $G.py$  | Analysis of Results                                |
-
-Customized SlurmBPMN uses XOR gateways (For more detailed information about BPMN structures, see [BPMN 2.0 Specification](https://www.omg.org/spec/BPMN/2.0)) for three main purposes:
-
-1. **Condition-Based Execution:** Scripts like `Cond1.py` run on SLURM to check specific conditions. If the script returns a 0, the workflow continues along that path.
-2. **Explicit Loops:** Tasks like `C.py` can be repeated a set number of times, either 1 or 2, ensuring `C.py` is executed in sequence for the selected number of repetitions.
-3. **Implicit Loops:** Tasks like `D.py` can run simultaneously with different inputs (e.g., thresholds 0.2 and 0.8), allowing all variations to be processed in parallel.
 
 ### Generated SLURM Script
 After uploading the SlurmBPMN file, click the 'Create Executable File' button to generate the output SLURM scripts. The tool generates a SLURM script that automates the workflow on a cluster environment. The final SLURM script `slurm_bpmn_example.sh` can be found here: ![Generated SLURM Script](./Example/generated_SLURM_script/slurm_bpmn_example.sh)
