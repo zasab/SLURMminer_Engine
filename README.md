@@ -78,8 +78,23 @@ To run SLURMminer_Engine, follow these steps:
 
     - Open your web browser and navigate to [http://127.0.0.1:5000](http://127.0.0.1:5000). Here, you can upload your input SlurmBPMN file, and the tool will generate the corresponding SLURM scripts in a newly created folder named `slurm_scripts`.
 
+## What you will see in user interface
 
-## Example
+Open your web browser and navigate to [http://127.0.0.1:5000](http://127.0.0.1:5000).
+
+First you will see the home page. You can navigate in create BPMN tab to generate your SlurmBPMN diagram and there you will see the rules for defining the diagram. 
+
+![Create BPMN Tab](./Example/create_bpmn_tab.png)
+
+The SlurmBPMN model allows for a structured representation of workflows with specific rules governing its elements and their interactions. The allowed elements include the Start Event, marking the beginning of the workflow, and the End Event, signifying its conclusion. Tasks represent individual units of work, while AND Gateways facilitate parallel paths, and XOR Gateways define decision points where only one path can be chosen. Sequence Flows connect these elements, ensuring the logical progression of the workflow, and Data Objects represent the data required or produced by tasks, with Data Associations linking tasks to these objects—each Data Object can have only one input task. Additionally, Text Annotations provide space for notes or comments related to tasks or gateways.
+
+Special rules apply to specific elements. XOR Split Gateways can be annotated to specify task repetitions using the format `rep:[n:m]`, where the task between the split and merge gateways is repeated sequentially between n and m times. For condition checks, certain sequence flows trigger SLURM scripts on HPC clusters, where the script's return code determines the continuation of the workflow. If the script returns a code 0, the workflow proceeds along that path. Furthermore, tasks can be executed with varying parameter values through XOR Gateways, allowing different outputs depending on the parameters used. This may require re-running subsequent tasks, such as `F.py`, depending on the results. If issues arise with parameter values, particularly with formatting, it's suggested to remove any single quotes around the values and try again.
+
+After generating the input diagram, you can upload that in home page as following:
+
+![BPMN to SLURM conversion](./Example/home_tab_3.png)
+
+## Use Case Example
 
 This section demonstrates how SLURMminer_Engine can be used to convert SlurmBPMN diagrams into SLURM scripts. A SlurmBPMN diagram is a type of customized BPMN that includes all the necessary information for executing a workflow on SLURM. To create and visualize an input SlurmBPMN diagram, you can use the [bpmn.io](https://demo.bpmn.io/new) online tool. This tool allows you to easily draw BPMN diagrams, which can then be customized to serve as input for SLURMminer_Engine.
 
